@@ -1,0 +1,18 @@
+html,
+body
+{
+    overflow: hidden;
+}
+.column {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+    max-width: 20%;
+}
+.webgl
+{
+    position: fixed;
+    top: 150px;
+    left: 0;
+    outline: none;
+}
