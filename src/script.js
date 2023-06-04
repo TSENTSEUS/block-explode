@@ -1,27 +1,26 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap';
+import {Vector3} from "three";
 
 let constraints = null;
-
+let assemble = false;
+let initialVertexPos = [];
 const fieldConstraints = {
     x: 0,
     y: 0,
     z: 0,
 }
-
 document.getElementById('submit').addEventListener('click', () =>
 {
     const x = document.getElementById('X').value;
     const y = document.getElementById('Y').value;
     const z = document.getElementById('Z').value;
-
     fieldConstraints.x = x;
     fieldConstraints.y = y;
     fieldConstraints.z = z;
     constraints = generateCube();
     scene.add(constraints)
-    console.log(fieldConstraints)
 })
 
 
@@ -82,11 +81,15 @@ const generateCube = () => {
     const offsetX = (x - 1) * 0.5;
     const offsetY = (y - 1) * 0.5;
     const offsetZ = (z - 1) * 0.5;
-
     for(let width = 0; width < x; width++){
         for(let height = 0; height < y; height++){
             for(let depth = 0; depth < z; depth++){
                 const mesh = generateRandomGeometry();
+                initialVertexPos.push(new Vector3(
+                     width - offsetX,
+                    height - offsetY,
+                     depth - offsetZ
+                ));
                 mesh.position.set(width - offsetX,height - offsetY,depth - offsetZ);
                 constraints.add(mesh)
             }
@@ -117,21 +120,36 @@ window.addEventListener('resize', () =>
 /**
  * Animate
  */
-
-document.getElementById('explode').addEventListener('click', () => {
-    explode();
+const explodeButton = document.getElementById('explode')
+explodeButton.addEventListener('click', () => {
+    explodeButton.innerText = assemble ? "Explode" : "Assemble"
+    if(assemble){
+        join()
+        assemble = false;
+    } else {
+        explode();
+        assemble = true;
+    }
 })
 const explode = () => {
-    // console.log(constraints);
     constraints.children.forEach(function (mesh) {
+        console.log(mesh.position)
         gsap.to(mesh.position, {duration: 1, delay: .5, x: (Math.random() - .5) * fieldConstraints.x * 2 })
         gsap.to(mesh.position, {duration: 1, delay: .5, y:  (Math.random() - .5) * fieldConstraints.y * 2 })
         gsap.to(mesh.position, {duration: 1, delay: .5, z:  (Math.random() - .5) * fieldConstraints.z * 2 })
-
+    });
+}
+const join = () => {
+    constraints.children.forEach( (mesh,i) => {
+        gsap.to(mesh.position, {duration: 1, delay: .5, x: initialVertexPos[i].x })
+        gsap.to(mesh.position, {duration: 1, delay: .5, y: initialVertexPos[i].y })
+        gsap.to(mesh.position, {duration: 1, delay: .5, z: initialVertexPos[i].z })
     });
 }
 const tick = () =>
 {
+    // Update Controls
+    controls.update();
 
     // Render
     renderer.render(scene, camera)
