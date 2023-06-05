@@ -19,6 +19,11 @@ document.getElementById('submit').addEventListener('click', () =>
     fieldConstraints.x = x;
     fieldConstraints.y = y;
     fieldConstraints.z = z;
+    if(constraints !== null){
+        scene.remove(constraints);
+        assemble = false;
+        explodeButton.innerText = assemble ? "Assemble" : "Explode"
+    }
     constraints = generateCube();
     scene.add(constraints)
 })
@@ -133,7 +138,6 @@ explodeButton.addEventListener('click', () => {
 })
 const explode = () => {
     constraints.children.forEach(function (mesh) {
-        console.log(mesh.position)
         gsap.to(mesh.position, {duration: 1, delay: .5, x: (Math.random() - .5) * fieldConstraints.x * 2 })
         gsap.to(mesh.position, {duration: 1, delay: .5, y:  (Math.random() - .5) * fieldConstraints.y * 2 })
         gsap.to(mesh.position, {duration: 1, delay: .5, z:  (Math.random() - .5) * fieldConstraints.z * 2 })
